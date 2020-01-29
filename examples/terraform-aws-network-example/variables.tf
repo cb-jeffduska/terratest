@@ -13,14 +13,17 @@
 
 variable "main_vpc_cidr" {
   description = "The CIDR of the main VPC"
+  type        = string
 }
 
 variable "public_subnet_cidr" {
   description = "The CIDR of public subnet"
+  type        = string
 }
 
 variable "private_subnet_cidr" {
   description = "The CIDR of the private subnet"
+  type        = string
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -30,10 +33,13 @@ variable "private_subnet_cidr" {
 
 variable "aws_region" {
   description = "The AWS region to deploy into"
+  type        = string
   default     = "us-east-1"
 }
 
 variable "tag_name" {
   description = "A name used to tag the resource"
-  default = "terraform-network-example"
+  type        = string
+  default     = "terraform-network-example"
 }
+

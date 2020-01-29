@@ -1,10 +1,19 @@
 # ---------------------------------------------------------------------------------------------------------------------
+# PIN TERRAFORM VERSION TO >= 0.12
+# The examples have been upgraded to 0.12 syntax
+# ---------------------------------------------------------------------------------------------------------------------
+
+terraform {
+  required_version = ">= 0.12"
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
 # DEPLOY AN EC2 INSTANCE THAT ALLOWS CONNECTIONS VIA SSH
 # See test/terraform_ssh_password_example.go for how to write automated tests for this code.
 # ---------------------------------------------------------------------------------------------------------------------
 
 provider "aws" {
-  region = "${var.aws_region}"
+  region = var.aws_region
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -12,18 +21,18 @@ provider "aws" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 resource "aws_instance" "example_public" {
-  ami           = "${data.aws_ami.ubuntu.id}"
+  ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
-  user_data     = "${data.template_file.user_data.rendered}"
+  user_data     = data.template_file.user_data.rendered
 
   vpc_security_group_ids = [
-    "${aws_security_group.example.id}",
+    aws_security_group.example.id,
   ]
 
   # This EC2 Instance has a public IP and will be accessible directly from the public Internet
   associate_public_ip_address = "true"
 
-  tags {
+  tags = {
     Name = "${var.instance_name}-public"
   }
 }
@@ -33,7 +42,7 @@ resource "aws_instance" "example_public" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 resource "aws_security_group" "example" {
-  name = "${var.instance_name}"
+  name = var.instance_name
 
   egress {
     from_port   = 0
@@ -43,8 +52,8 @@ resource "aws_security_group" "example" {
   }
 
   ingress {
-    from_port = "${var.ssh_port}"
-    to_port   = "${var.ssh_port}"
+    from_port = var.ssh_port
+    to_port   = var.ssh_port
     protocol  = "tcp"
 
     # To keep this example simple, we allow incoming SSH requests from any IP. In real-world usage, you should only
@@ -58,10 +67,10 @@ resource "aws_security_group" "example" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 data "template_file" "user_data" {
-  template = "${file("${path.module}/user_data.sh")}"
+  template = file("${path.module}/user_data.sh")
 
   vars = {
-    terratest_password = "${var.terratest_password}"
+    terratest_password = var.terratest_password
   }
 }
 
@@ -93,3 +102,4 @@ data "aws_ami" "ubuntu" {
     values = ["ubuntu/images/hvm-ssd/ubuntu-*-amd64-server-*"]
   }
 }
+

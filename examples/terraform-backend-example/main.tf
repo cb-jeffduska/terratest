@@ -7,12 +7,14 @@ terraform {
   # Leave the config for this backend unspecified so Terraform can fill it in. This is known as "partial configuration":
   # https://www.terraform.io/docs/backends/config.html#partial-configuration
   backend "s3" {}
+  required_version = ">= 0.12"
 }
 
 variable "foo" {
   description = "Some data to store as an output of this module"
+  type        = string
 }
 
 output "foo" {
-  value = "${var.foo}"
+  value = var.foo
 }

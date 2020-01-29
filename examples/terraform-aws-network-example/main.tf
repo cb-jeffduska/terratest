@@ -1,9 +1,18 @@
+# ---------------------------------------------------------------------------------------------------------------------
+# PIN TERRAFORM VERSION TO >= 0.12
+# The examples have been upgraded to 0.12 syntax
+# ---------------------------------------------------------------------------------------------------------------------
+
+terraform {
+  required_version = ">= 0.12"
+}
+
 data "aws_availability_zones" "available" {
   state = "available"
 }
 
 provider "aws" {
-  region = "${var.aws_region}"
+  region = var.aws_region
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -12,43 +21,43 @@ provider "aws" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 resource "aws_vpc" "main" {
-  cidr_block = "${var.main_vpc_cidr}"
+  cidr_block = var.main_vpc_cidr
 
   tags = {
-    Name = "${var.tag_name}"
+    Name = var.tag_name
   }
 }
 
 resource "aws_internet_gateway" "main_gateway" {
-  vpc_id = "${aws_vpc.main.id}"
+  vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "${var.tag_name}"
+    Name = var.tag_name
   }
 }
 
 resource "aws_subnet" "private" {
-  vpc_id                  = "${aws_vpc.main.id}"
-  cidr_block              = "${var.private_subnet_cidr}"
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.private_subnet_cidr
   map_public_ip_on_launch = false
-    
+
   tags = {
-    Name = "${var.tag_name}"
+    Name = var.tag_name
   }
 
-  availability_zone = "${data.aws_availability_zones.available.names[0]}"
+  availability_zone = data.aws_availability_zones.available.names[0]
 }
 
 resource "aws_subnet" "public" {
-  vpc_id                  = "${aws_vpc.main.id}"
-  cidr_block              = "${var.public_subnet_cidr}"
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.public_subnet_cidr
   map_public_ip_on_launch = true
-    
+
   tags = {
-    Name = "${var.tag_name}"
+    Name = var.tag_name
   }
 
-  availability_zone = "${data.aws_availability_zones.available.names[0]}"
+  availability_zone = data.aws_availability_zones.available.names[0]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -56,21 +65,21 @@ resource "aws_subnet" "public" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 resource "aws_route_table" "public" {
-  vpc_id = "${aws_vpc.main.id}"
+  vpc_id = aws_vpc.main.id
 
   route {
-    cidr_block = "91.189.0.0/24" 
-    gateway_id = "${aws_internet_gateway.main_gateway.id}"
+    cidr_block = "91.189.0.0/24"
+    gateway_id = aws_internet_gateway.main_gateway.id
   }
 
   tags = {
-    Name = "${var.tag_name}"
+    Name = var.tag_name
   }
 }
 
 resource "aws_route_table_association" "public" {
-  subnet_id = "${aws_subnet.public.id}"
-  route_table_id = "${aws_route_table.public.id}"
+  subnet_id      = aws_subnet.public.id
+  route_table_id = aws_route_table.public.id
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -82,9 +91,9 @@ resource "aws_eip" "nat" {
 }
 
 resource "aws_nat_gateway" "nat" {
-  allocation_id   = "${aws_eip.nat.id}"
-  subnet_id       = "${aws_subnet.public.id}"
-  depends_on      = ["aws_internet_gateway.main_gateway"]
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.public.id
+  depends_on    = [aws_internet_gateway.main_gateway]
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -92,19 +101,20 @@ resource "aws_nat_gateway" "nat" {
 # ---------------------------------------------------------------------------------------------------------------------
 
 resource "aws_route_table" "private" {
-  vpc_id = "${aws_vpc.main.id}"
+  vpc_id = aws_vpc.main.id
 
   route {
-    cidr_block = "0.0.0.0/0"
-    nat_gateway_id = "${aws_nat_gateway.nat.id}"
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat.id
   }
 
   tags = {
-    Name = "${var.tag_name}"
+    Name = var.tag_name
   }
 }
 
 resource "aws_route_table_association" "private" {
-  subnet_id = "${aws_subnet.private.id}"
-  route_table_id = "${aws_route_table.private.id}"
+  subnet_id      = aws_subnet.private.id
+  route_table_id = aws_route_table.private.id
 }
+

@@ -1,26 +1,35 @@
 # ---------------------------------------------------------------------------------------------------------------------
+# PIN TERRAFORM VERSION TO >= 0.12
+# The examples have been upgraded to 0.12 syntax
+# ---------------------------------------------------------------------------------------------------------------------
+
+terraform {
+  required_version = ">= 0.12"
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
 # DEPLOY A REGIONAL MANAGED INSTANCE GROUP
 # See test/terraform_gcp_ig_example_test.go for how to write automated tests for this code.
 # ---------------------------------------------------------------------------------------------------------------------
 
 # Create a Regional Managed Instance Group
 resource "google_compute_region_instance_group_manager" "example" {
-  project = "${var.gcp_project_id}"
-  region  = "${var.gcp_region}"
+  project = var.gcp_project_id
+  region  = var.gcp_region
 
   name               = "${var.cluster_name}-ig"
-  base_instance_name = "${var.cluster_name}"
-  instance_template  = "${google_compute_instance_template.example.self_link}"
+  base_instance_name = var.cluster_name
+  instance_template  = google_compute_instance_template.example.self_link
 
-  target_size = "${var.cluster_size}"
+  target_size = var.cluster_size
 }
 
 # Create the Instance Template that will be used to populate the Managed Instance Group.
 resource "google_compute_instance_template" "example" {
-  project = "${var.gcp_project_id}"
+  project = var.gcp_project_id
 
-  name_prefix  = "${var.cluster_name}"
-  machine_type = "${var.machine_type}"
+  name_prefix  = var.cluster_name
+  machine_type = var.machine_type
 
   scheduling {
     automatic_restart   = true
@@ -39,6 +48,8 @@ resource "google_compute_instance_template" "example" {
 
     # The presence of this property assigns a public IP address to each Compute Instance. We intentionally leave it
     # blank so that an external IP address is selected automatically.
-    access_config {}
+    access_config {
+    }
   }
 }
+
