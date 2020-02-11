@@ -53,7 +53,7 @@ func RenderTemplateE(t *testing.T, options *Options, chartDir string, releaseNam
 
 		// Note: we only get the abs template file path to check it actually exists, but the `helm template` command
 		// expects the relative path from the chart.
-		args = append(args, "-x", templateFile)
+		args = append(args,  templateFile)
 	}
 	// ... and add the chart at the end as the command expects
 	args = append(args, chartDir)
