@@ -94,7 +94,7 @@ func getHelm2Args(args []string, releaseName string, options *Options, err error
 
 		// Note: we only get the abs template file path to check it actually exists, but the `helm template` command
 		// expects the relative path from the chart.
-		args = append(args, "-x", templateFile)
+		args = append(args,  templateFile)
 	}
 	// ... and add the chart at the end as the command expects
 	args = append(args, chartDir)
