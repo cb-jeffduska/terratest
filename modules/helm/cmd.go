@@ -12,14 +12,17 @@ import (
 // - kubeconfig context
 // - helm home path
 func getCommonArgs(options *Options, args ...string) []string {
-	if options.KubectlOptions != nil && options.KubectlOptions.ContextName != "" {
-		args = append(args, "--kube-context", options.KubectlOptions.ContextName)
-	}
-	if options.KubectlOptions != nil && options.KubectlOptions.ConfigPath != "" {
-		args = append(args, "--kubeconfig", options.KubectlOptions.ConfigPath)
-	}
-	if options.HomePath != "" {
-		args = append(args, "--home", options.HomePath)
+	if options != nil {
+
+		if options.KubectlOptions != nil && options.KubectlOptions.ContextName != "" {
+			args = append(args, "--kube-context", options.KubectlOptions.ContextName)
+		}
+		if options.KubectlOptions != nil && options.KubectlOptions.ConfigPath != "" {
+			args = append(args, "--kubeconfig", options.KubectlOptions.ConfigPath)
+		}
+		if options.HomePath != "" {
+			args = append(args, "--home", options.HomePath)
+		}
 	}
 	return args
 }
@@ -49,11 +52,17 @@ func RunHelmCommandAndGetOutputE(t *testing.T, options *Options, cmd string, add
 	args = getCommonArgs(options, args...)
 	args = append(args, additionalArgs...)
 
+	var envVars map[string]string
+	if cmd == "Version" {
+		envVars = options.EnvVars
+	}
+
+
 	helmCmd := shell.Command{
 		Command:    "helm",
 		Args:       args,
 		WorkingDir: ".",
-		Env:        options.EnvVars,
+		Env:        envVars,
 	}
 	return shell.RunCommandAndGetOutputE(t, helmCmd)
 }

@@ -84,7 +84,21 @@ func RunCommandAndGetStdOutE(t *testing.T, command Command) (string, error) {
 // storedStdout and storedStderr variables, respectively. The stdout and stderr of that command will also
 // be printed to the stdout and stderr of this Go program to make debugging easier.
 func runCommandAndStoreOutputE(t *testing.T, command Command, storedStdout *[]string, storedStderr *[]string) error {
-	logger.Logf(t, "Running command %s with args %s", command.Command, command.Args)
+
+	if command.Command == "" && command.Args == nil {
+		s := "command missing and no arguments"
+		logger.Logf(t, s)
+		return errors.New(s)
+	}
+	if command.Command == "" {
+		s:=fmt.Sprintf("command missing but args %s", command.Args)
+		logger.Logf(t, s)
+		return errors.New(s)
+		} else if command.Args == nil {
+		s := "Running command %s with no arguments"
+		logger.Logf(t, s, command.Command)
+		return errors.New(s)
+		}
 
 	cmd := exec.Command(command.Command, command.Args...)
 	cmd.Dir = command.WorkingDir
